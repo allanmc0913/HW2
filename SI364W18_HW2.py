@@ -18,12 +18,6 @@ from wtforms.validators import Required
 
 
 
-
-
-
-
-
-
 import requests
 import json
 #####################
@@ -82,7 +76,11 @@ def artist_links():
 @app.route('/specific/song/<artistname>')
 def specific_artist(artistname):
     base_url = 'https://itunes.apple.com/search?'
-    params_dict = {"term": artistname, "media": "music", "entity": "musicTrack", "limit": "5"}
+    params_dict = {"term": artistname, "media": "music", "entity": "musicTrack", "limit": "3"}
+    resp = requests.get(base_url, params=params_dict)
+    objects = json.loads(resp.text)['results']
+
+    return render_template('specific_artist.html', results=objects)
 
 
 #PART 3
@@ -95,7 +93,7 @@ def album_entry():
 def album_result():
     form = AlbumEntryForm()
 
-    if form.validate_on_submit():
+    if request.method == "POST" and form.validate_on_submit():
 
         album = form.album_name.data
         like = form.like.data
@@ -105,9 +103,6 @@ def album_result():
     flash(form.errors)
 
     return redirect(url_for('album_entry'))
-
-
-
 
 if __name__ == '__main__':
     app.run(use_reloader=True,debug=True)
